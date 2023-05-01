@@ -11,10 +11,7 @@ const { createCoreController } = require("@strapi/strapi").factories;
 module.exports = createCoreController("api::order.order", ({ strapi }) => ({
   async create(ctx) {
     const { products, userName, email } = ctx.request.body;
-    console.log(`products: `, products);
-    console.log(`userName: `, userName);
-    console.log(`email: `, email);
-    console.log(`Stripe Key: ${process.env.STRIPE_TEST_SECRET_KEY}`);
+
     try {
       // retrieve item information
       const lineItems = await Promise.all(
@@ -36,7 +33,6 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         })
       );
 
-      console.log(`Line Items: ${lineItems}`);
 
       // create a stripe session
       const session = await stripe.checkout.sessions.create({

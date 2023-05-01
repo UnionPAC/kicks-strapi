@@ -33,14 +33,14 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         })
       );
 
-
       // create a stripe session
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         customer_email: email,
         mode: "payment",
-        success_url: "http://localhost:3000/checkout/success",
-        cancel_url: "http://localhost:3000/checkout/error",
+        success_url:
+          "https://nextjs-kicks-ecommerce.vercel.app/checkout/success",
+        cancel_url: "https://nextjs-kicks-ecommerce.vercel.app/checkout/error",
         line_items: lineItems,
       });
 

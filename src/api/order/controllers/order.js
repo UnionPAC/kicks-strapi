@@ -11,9 +11,12 @@ const { createCoreController } = require("@strapi/strapi").factories;
 module.exports = createCoreController("api::order.order", ({ strapi }) => ({
   async create(ctx) {
     const { products, userName, email } = ctx.request.body;
+    console.log(`products: `, products);
+    console.log(`userName: `, userName);
+    console.log(`email: `, email);
+    console.log(`Stripe Key: ${process.env.STRIPE_TEST_SECRET_KEY}`);
     try {
       // retrieve item information
-      console.log("creating line items...");
       const lineItems = await Promise.all(
         products.map(async (product) => {
           const item = await strapi
@@ -33,9 +36,9 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         })
       );
 
+      console.log(`Line Items: ${lineItems}`);
+
       // create a stripe session
-      console.log(stripe);
-      console.log("creating stripe session ...");
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         customer_email: email,
@@ -45,13 +48,14 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         line_items: lineItems,
       });
 
-      // create the item
+      console.log(session);
+
+      // create the order in strapi
       await strapi
         .service("api::order.order")
         .create({ data: { userName, products, stripeSessionId: session.id } });
 
       // return the session id
-      console.log(session.id);
       return { id: session.id };
     } catch (error) {
       ctx.response.status = 500;
